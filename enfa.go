@@ -86,25 +86,26 @@ func (d *ENFA) CheckPathExist(src int, input string, dst int) bool {
 func (d *ENFA) Input(testInput string) []int {
 	updateCurrentState := make(map[int]bool)
 	for current, _ := range d.currentState {
-		intputTrans := transitionInput{srcState: current, input: testInput}
-		valMap, ok := d.transition[intputTrans]
-		if ok {
-			for dst, _ := range valMap {
-				updateCurrentState[dst] = true
+		for _, realTestInput := range []string{testInput, "*", "?"} {
+			intputTrans := transitionInput{srcState: current, input: realTestInput}
+			valMap, ok := d.transition[intputTrans]
+			if ok {
+				for dst, _ := range valMap {
+					updateCurrentState[dst] = true
 
-				//Update epsilon input way... if exist
-				epsilonTrans := transitionInput{srcState: dst}
-				if eMap, ok := d.transition[epsilonTrans]; ok {
-					for eDst, _ := range eMap {
-						updateCurrentState[eDst] = true
+					//Update epsilon input way... if exist
+					epsilonTrans := transitionInput{srcState: dst}
+					if eMap, ok := d.transition[epsilonTrans]; ok {
+						for eDst, _ := range eMap {
+							updateCurrentState[eDst] = true
+						}
 					}
 				}
+			} else {
+				//dead state, remove in current state
+				//do nothing.
 			}
-		} else {
-			//dead state, remove in current state
-			//do nothing.
 		}
-
 	}
 
 	//update curret state
